@@ -1,6 +1,6 @@
 // your-ai-copilot/js/core/flashcardGenerator.js
 
-import { callLLMProvider } from './llmUtils.js';
+const { callLLMProvider } = require('./llmUtils.js');
 
 /**
  * @file flashcardGenerator.js
@@ -21,7 +21,7 @@ import { callLLMProvider } from './llmUtils.js';
  * Each object should have 'front' (question) and 'back' (answer) keys.
  * @throws {Error} If flashcard generation fails or parsing is unsuccessful.
  */
-export async function generateFlashcards(textContent, options = {}) {
+async function generateFlashcards(textContent, options = {}) {
     if (!textContent || typeof textContent !== 'string' || !textContent.trim()) {
         throw new Error("Text content for flashcards cannot be empty.");
     }
@@ -146,7 +146,7 @@ function extractJsonArrayFromString(str) {
  * @param {Array<string>} [tags=[]] Optional tags for the notes.
  * @returns {object} JSON object for AnkiConnect batch import.
  */
-export function formatForAnki(flashcards, deckName = "YourAI Copilot Deck", modelName = "Basic", tags = ["YourAICopilot"]) {
+function formatForAnki(flashcards, deckName = "YourAI Copilot Deck", modelName = "Basic", tags = ["YourAICopilot"]) {
     if (!Array.isArray(flashcards) || flashcards.length === 0) {
         return null;
     }
@@ -191,3 +191,8 @@ export function formatForAnki(flashcards, deckName = "YourAI Copilot Deck", mode
 // }
 //
 // testFlashcardGeneration(); // Call from a context with chrome.storage and chrome.runtime
+
+module.exports = {
+    generateFlashcards,
+    formatForAnki,
+};

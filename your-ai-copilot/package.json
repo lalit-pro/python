@@ -1,0 +1,50 @@
+{
+  "name": "your-ai-copilot",
+  "version": "1.0.0",
+  "description": "An AI-powered Chrome/Edge extension to assist with web tasks.",
+  "main": "js/background/background.js",
+  "type": "commonjs",
+  "scripts": {
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:e2e": "npx playwright test --config=tests/playwright.config.js",
+    "audit:accessibility": "node tests/accessibility/audit.js",
+    "build": "echo "Build script placeholder: Add actual build commands if using webpack, rollup, etc." && mkdir -p dist && cp -R assets css html js manifest.json dist/ || exit 0",
+    "zip": "npm run build && cd dist && zip -r ../your-ai-copilot-$(node -p \"require('./package.json').version\").zip . && cd ..",
+    "prepare": "husky install || exit 0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "edge-extension",
+    "ai",
+    "llm",
+    "productivity"
+  ],
+  "author": "YourAI Copilot Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.14.0",
+    "@babel/preset-env": "^7.14.0",
+    "@playwright/test": "~1.17.2",
+    "babel-jest": "^26.6.3",
+    "codecov": "^3.8.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.25.0",
+    "husky": "^4.3.8",
+    "jest": "^26.6.3",
+    "jest-environment-jsdom": "^26.6.2",
+    "lighthouse": "^8.0.0",
+    "prettier": "^2.3.0",
+    "puppeteer": "^10.4.0",
+    "zip-a-folder": "^1.1.5"
+  },
+  "engines": {
+    "node": "~12.22.12",
+    "npm": "~6.14.16"
+  }
+}

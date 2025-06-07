@@ -1,6 +1,6 @@
 // your-ai-copilot/js/core/qaAgent.js
 
-import { callLLMProvider } from './llmUtils.js';
+const { callLLMProvider } = require('./llmUtils.js');
 
 /**
  * @file qaAgent.js
@@ -21,7 +21,7 @@ import { callLLMProvider } from './llmUtils.js';
  * @returns {Promise<string>} A promise that resolves to the LLM's answer.
  * @throws {Error} If the Q&A process fails.
  */
-export async function askQuestion(question, options = {}) {
+async function askQuestion(question, options = {}) {
     if (!question || typeof question !== 'string' || !question.trim()) {
         throw new Error("Question cannot be empty.");
     }
@@ -146,3 +146,7 @@ Question: ${question}`;
 // }
 //
 // testQA(); // Call from a context with chrome.storage and chrome.runtime
+
+module.exports = {
+    askQuestion,
+};

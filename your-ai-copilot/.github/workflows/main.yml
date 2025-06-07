@@ -1,0 +1,175 @@
+# your-ai-copilot/.github/workflows/main.yml
+name: YourAI Copilot CI/CD (Node.js 12.x)
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  lint-and-test:
+    name: Lint and Unit Test (Node.js 12.x)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ['12.x'] # Target Node.js 12.x series
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        # npm version should typically align with Node 12.x (npm 6.x)
+        # cache: 'npm' # Caching npm for Node 12 might be less critical or behave differently with older npm
+
+    - name: Install dependencies (npm 6.x expected with Node 12)
+      run: npm ci
+
+    - name: Run ESLint (v7.x)
+      run: npm run lint --if-present
+
+    - name: Run Prettier Check (v2.x)
+      run: npm run format:check --if-present
+
+    - name: Run unit tests (Jest v26.x)
+      run: npm test -- --ci # Jest v26 should understand --ci; --coverage is in package.json script
+
+    # Codecov upload for Jest v26 coverage (ensure coverage reporters are compatible)
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # Optional
+        # files: ./coverage/clover.xml,./coverage/lcov.info # Adjust if Jest 26 output differs
+        # directory: ./coverage/
+      # Potentially use an older version of codecov-action if v4 has issues with Node 12 execution environment for the action itself.
+      # However, the action primarily uploads files, so current version might be fine.
+
+  # E2E tests with Playwright v1.17.2 on Node 12.x.
+  # This job is kept for structure but its utility is limited due to old Playwright/browser versions.
+  e2e-tests:
+    name: End-to-End Tests (Playwright v1.17.x, Node.js 12.x)
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Keep conditional for now
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js 12.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '12.x'
+        # cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    # Playwright v1.17.x needs its specific browsers.
+    - name: Install Playwright v1.17.x Browsers
+      run: npx playwright@1.17.2 install --with-deps # Specify version for npx to be sure
+
+    # Build step placeholder (if needed for E2E)
+    # - name: Build extension for E2E testing
+    #   run: npm run build
+
+    - name: Run Playwright E2E tests (v1.17.x)
+      run: npm run test:e2e
+      # Expect potential instability or limited test scope.
+
+    - name: Upload Playwright report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-node12
+        path: playwright-report/
+        retention-days: 30
+
+  build-extension:
+    name: Build Extension ZIP (Node.js 12.x for scripts)
+    runs-on: ubuntu-latest
+    needs: [lint-and-test] # Base on unit tests; E2E is too risky to gate build on.
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js 12.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '12.x'
+        # cache: 'npm'
+
+    - name: Install dependencies (if build script needs them)
+      run: npm ci
+
+    - name: Build extension (using Node 12 for build script if any)
+      run: npm run build --if-present
+
+    - name: Create ZIP file
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        ZIP_NAME="your-ai-copilot-${VERSION}.zip"
+        if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
+          cd dist && zip -r "../${ZIP_NAME}" .
+        else
+          echo "dist/ directory is empty or does not exist. Zipping source files."
+          mkdir temp_dist
+          cp manifest.json temp_dist/
+          cp -r js temp_dist/
+          cp -r css temp_dist/
+          cp -r html temp_dist/
+          cp -r assets temp_dist/
+          # Add other necessary files/folders
+          cd temp_dist && zip -r "../${ZIP_NAME}" . && cd .. && rm -rf temp_dist
+        fi
+        echo "EXTENSION_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+
+    - name: Upload ZIP artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: extension-zip-node12
+        path: ${{ env.EXTENSION_NAME }}
+        retention-days: 90
+
+  # Deployment job (placeholder, no changes other than Node version for tool install if needed)
+  deploy-to-chrome-web-store:
+    name: Deploy to Chrome Web Store (Node.js 12.x for tools)
+    runs-on: ubuntu-latest
+    needs: build-extension
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Download extension ZIP
+      uses: actions/download-artifact@v4
+      with:
+        name: extension-zip-node12 # Match updated artifact name
+        path: .
+
+    - name: Set up Node.js 12.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '12.x'
+
+    - name: Install webstore-upload CLI (ensure compatible version if possible)
+      run: npm install -g webstore-upload # This might install latest, check for Node 12 compatible version if issues.
+
+    - name: Deploy to Chrome Web Store
+      env:
+        EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+        CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+        REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      run: |
+        echo "Starting deployment process..."
+        # Use the downloaded ZIP name from previous step
+        ZIP_FILE_NAME=$(ls your-ai-copilot-*.zip | head -n 1)
+        echo "Attempting to deploy ${ZIP_FILE_NAME}"
+        # webstore-upload --source "${ZIP_FILE_NAME}" --extension-id $EXTENSION_ID ... (example)
+        echo "Deployment placeholder: Real deployment requires CWS API credentials and tool setup."
+        ls -l "${ZIP_FILE_NAME}"

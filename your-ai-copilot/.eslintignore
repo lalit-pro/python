@@ -1,0 +1,16 @@
+# This file is largely superseded by "ignorePatterns" in .eslintrc.json,
+# but can be useful for some tools or editor integrations.
+
+node_modules/
+dist/
+coverage/
+playwright-report/
+tests/accessibility/reports/
+
+# Config files at root
+jest.config.js
+playwright.config.js
+babel.config.js
+
+# Specific files if needed
+# js/someGeneratedFile.js

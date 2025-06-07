@@ -1,6 +1,6 @@
 // your-ai-copilot/js/core/summarizer.js
 
-import { callLLMProvider } from './llmUtils.js';
+const { callLLMProvider } = require('./llmUtils.js');
 
 /**
  * @file summarizer.js
@@ -20,7 +20,7 @@ import { callLLMProvider } from './llmUtils.js';
  * @returns {Promise<string>} A promise that resolves to the summarized text.
  * @throws {Error} If summarization fails.
  */
-export async function summarizeText(textToSummarize, options = {}) {
+async function summarizeText(textToSummarize, options = {}) {
     if (!textToSummarize || typeof textToSummarize !== 'string' || !textToSummarize.trim()) {
         throw new Error("Text to summarize cannot be empty.");
     }
@@ -82,7 +82,7 @@ export async function summarizeText(textToSummarize, options = {}) {
  * @param {object} options Summarization options (see summarizeText).
  * @returns {Promise<string>} A promise that resolves to the summarized text.
  */
-export async function summarizeUrl(url, options = {}) {
+async function summarizeUrl(url, options = {}) {
     // 1. Fetch page content (this logic would typically be in a background script or use existing mechanisms)
     //    For this example, we'll assume page text is passed to summarizeText directly.
     //    A real implementation would call `chrome.runtime.sendMessage({ action: 'extractPageContent', urlToFetch: url })`
@@ -113,3 +113,8 @@ export async function summarizeUrl(url, options = {}) {
 // }
 //
 // testSummarization(); // Call this from a context where chrome.storage and chrome.runtime are available.
+
+module.exports = {
+    summarizeText,
+    summarizeUrl,
+};

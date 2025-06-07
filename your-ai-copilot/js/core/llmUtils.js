@@ -17,7 +17,7 @@
  * @returns {object} The request body suitable for the provider.
  * @throws {Error} if provider is not supported.
  */
-export function constructLLMRequestBody(provider, prompt, options = {}) {
+function constructLLMRequestBody(provider, prompt, options = {}) {
     const {
         model, // Specific model name
         max_tokens = 500, // Default max tokens
@@ -90,7 +90,7 @@ ${prompt}`;
  * @returns {string} The extracted text content.
  * @throws {Error} if provider is not supported or response format is unexpected.
  */
-export function parseLLMResponse(provider, responseData) {
+function parseLLMResponse(provider, responseData) {
     if (!responseData) {
         console.error("Received null or undefined responseData for parsing.");
         return "Error: No response data received from LLM.";
@@ -150,7 +150,7 @@ export function parseLLMResponse(provider, responseData) {
  * @returns {Promise<string>} The parsed text response from the LLM.
  * @throws {Error} If API call fails or response parsing fails.
  */
-export async function callLLMProvider(provider, prompt, options = {}) {
+async function callLLMProvider(provider, prompt, options = {}) {
     const { apiKey, ...constructOptions } = options; // Separate apiKey if passed
     const requestBody = constructLLMRequestBody(provider, prompt, constructOptions);
 
@@ -202,3 +202,9 @@ ${textToSummarize}`;
 //     throw error;
 //   }
 // }
+
+module.exports = {
+    constructLLMRequestBody,
+    parseLLMResponse,
+    callLLMProvider,
+};

@@ -1,0 +1,18 @@
+# Directories
+node_modules/
+dist/
+coverage/
+playwright-report/
+tests/accessibility/reports/
+
+# Config files (often have specific formatting)
+*.config.js
+package.json
+package-lock.json
+manifest.json # JSON files are usually formatted by Prettier, but manifest can be sensitive
+
+# Generated files
+# assets/some-generated-asset.svg
+
+# Markdown (if you prefer not to format it with Prettier, though it's generally good)
+# *.md
