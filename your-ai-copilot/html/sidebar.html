@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourAI Copilot - Sidebar</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+</head>
+<body>
+    <div id="sidebar-container">
+        <div id="sidebar-resizer"></div>
+        <div id="sidebar-header">
+            <h2>YourAI Copilot</h2>
+            <button id="closeSidebarBtn" title="Close Sidebar">&times;</button>
+        </div>
+
+        <div id="sidebar-tabs">
+            <button class="sidebar-tab-button active" data-tab="chat">Chat</button>
+            <button class="sidebar-tab-button" data-tab="history">History</button>
+            <button class="sidebar-tab-button" data-tab="prompts">Prompts</button>
+        </div>
+
+        <div id="sidebar-content">
+            <div id="chat-tab-content" class="sidebar-tab-pane active">
+                <div id="chat-messages">
+                    <!-- Chat messages will be appended here -->
+                    <div class="message welcome-message">
+                        <p>Welcome to YourAI Copilot! Ask me about the page content or select an action.</p>
+                    </div>
+                </div>
+                <div id="chat-input-area">
+                    <textarea id="chat-input" placeholder="Ask about the page or type a command..."></textarea>
+                    <button id="sendMessageBtn">Send</button>
+                </div>
+                <div id="quick-actions-chat">
+                    <button data-action="summarize" title="Summarize current page context">Summarize</button>
+                    <button data-action="keywords" title="Extract keywords from page">Keywords</button>
+                    <button data-action="qa_page" title="Ask a question about the page">Q&A Page</button>
+                </div>
+            </div>
+
+            <div id="history-tab-content" class="sidebar-tab-pane">
+                <div id="history-list">
+                    <!-- History items will be appended here -->
+                    <p>No history yet.</p>
+                </div>
+                <div id="history-controls">
+                    <button id="exportHistoryBtn">Export History</button>
+                    <button id="clearHistoryBtn">Clear History</button>
+                </div>
+            </div>
+
+            <div id="prompts-tab-content" class="sidebar-tab-pane">
+                <div id="prompt-library">
+                    </div>
+                <div id="custom-prompt-area">
+                    <h4>Use Custom Prompt</h4>
+                    <textarea id="customPromptInput" placeholder="Enter your custom prompt. Use {{page}}, {{selection}}, {{transcript}}, {{language}} variables."></textarea>
+                    <button id="runCustomPromptBtn">Run Prompt</button>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar-status">
+            <p>Status: Ready</p>
+        </div>
+    </div>
+    <script src="../js/sidebar/sidebar.js"></script>
+</body>
+</html>
