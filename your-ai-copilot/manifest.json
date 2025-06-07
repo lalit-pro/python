@@ -40,7 +40,8 @@
     "alarms",
     "contextMenus",
     "notifications",
-    "webRequest"
+    "webRequest",
+    "offscreen"
   ],
   "host_permissions": [
     "https://*.openai.com/",

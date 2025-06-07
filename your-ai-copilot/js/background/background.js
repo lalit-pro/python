@@ -1,5 +1,57 @@
 // your-ai-copilot/js/background/background.js
 
+// --- Offscreen Document Management (Add this section to background.js) ---
+const OFFSCREEN_DOCUMENT_PATH = 'html/offscreen.html';
+let creatingOffscreenDocument; // Promise to prevent multiple creation attempts
+
+async function hasOffscreenDocument() {
+    // Check if an offscreen document is already active.
+    // Requires Chrome 116+ for clients.matchAll
+    if (typeof clients === 'undefined' || !clients.matchAll) {
+        // Fallback for older versions or different environments if necessary
+        // This might involve trying to send a message and seeing if it resolves
+        console.warn("clients.matchAll not available to check for offscreen document.");
+        // A simple but less reliable check:
+        const contexts = await chrome.runtime.getContexts({
+            contextTypes: ['OFFSCREEN_DOCUMENT']
+        });
+        return contexts.length > 0;
+    }
+    const matchedClients = await clients.matchAll({
+        type: 'offscreen',
+        includeUncontrolled: true // May not be necessary depending on use case
+    });
+    return matchedClients.length > 0;
+}
+
+async function setupOffscreenDocument() {
+    if (await hasOffscreenDocument()) {
+        console.log("Offscreen document already exists.");
+        return;
+    }
+
+    if (creatingOffscreenDocument) {
+        await creatingOffscreenDocument;
+        return;
+    }
+
+    creatingOffscreenDocument = chrome.offscreen.createDocument({
+        url: OFFSCREEN_DOCUMENT_PATH,
+        reasons: [chrome.offscreen.Reason.DOM_PARSER], // DOM_SCRAPING when it becomes available, use DOM_PARSER for now
+        justification: 'Needed for fetching and parsing external page content for monitors.',
+    });
+
+    try {
+        await creatingOffscreenDocument;
+        console.log("Offscreen document created successfully.");
+    } catch (error) {
+        console.error("Failed to create offscreen document:", error);
+    } finally {
+        creatingOffscreenDocument = null;
+    }
+}
+
+
 // --- Globals ---
 const LLM_ENDPOINTS = {
   openai: 'https://api.openai.com/v1/chat/completions',
@@ -108,7 +160,12 @@ async function getCachedData(key) {
 
 // --- Event Listeners ---
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onStartup.addListener(async () => {
+    console.log("Extension startup.");
+    await setupOffscreenDocument();
+});
+
+chrome.runtime.onInstalled.addListener(async () => {
   console.log('YourAI Copilot extension installed.');
   // Initialize default settings or perform first-time setup
   chrome.storage.local.get(['userSettings', 'apiKeys'], (result) => {
@@ -144,6 +201,7 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Ask YourAI about selected text",
     contexts: ["selection"]
   });
+  await setupOffscreenDocument(); // Add this line
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -185,6 +243,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .then(data => sendResponse({ success: true, data: data }))
       .catch(error => sendResponse({ success: false, error: error.message }));
     return true; // Async
+  } else if (request.action === 'fetchPageElementForMonitor') { // Add this else if block
+    (async () => { // Wrap in async IIFE to use await
+        await setupOffscreenDocument(); // Ensure offscreen document is ready
+        if (!(await hasOffscreenDocument())) {
+            sendResponse({ success: false, error: "Offscreen document not available." });
+            return;
+        }
+        try {
+            const offscreenResponse = await chrome.runtime.sendMessage({
+                target: 'offscreen', // Important: identify the target
+                action: 'fetchPageElement', // Action for the offscreen script
+                data: request.data
+            });
+            sendResponse(offscreenResponse);
+        } catch (error) {
+            console.error("Error communicating with offscreen document:", error);
+            sendResponse({ success: false, error: `Failed to get response from offscreen document: ${error.message}` });
+        }
+    })();
+    return true; // Indicates async response
   } else if (request.action === 'extractPageContent') {
     // Forward to active tab's content script
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
