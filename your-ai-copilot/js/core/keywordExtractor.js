@@ -1,6 +1,6 @@
 // your-ai-copilot/js/core/keywordExtractor.js
 
-import { callLLMProvider } from './llmUtils.js';
+const { callLLMProvider } = require('./llmUtils.js');
 
 /**
  * @file keywordExtractor.js
@@ -21,7 +21,7 @@ import { callLLMProvider } from './llmUtils.js';
  * @returns {Promise<Array<string>|object>} A promise that resolves to an array of keywords (strings) or a JSON object for mind maps.
  * @throws {Error} If keyword extraction fails or parsing is unsuccessful.
  */
-export async function extractKeywords(textContent, options = {}) {
+async function extractKeywords(textContent, options = {}) {
     if (!textContent || typeof textContent !== 'string' || !textContent.trim()) {
         throw new Error("Text content for keyword extraction cannot be empty.");
     }
@@ -138,3 +138,7 @@ JSON Output:`;
 // }
 //
 // testKeywordExtraction(); // Call from a context with chrome.storage and chrome.runtime
+
+module.exports = {
+    extractKeywords,
+};

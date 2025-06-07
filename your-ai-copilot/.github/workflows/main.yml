@@ -1,20 +1,20 @@
 # your-ai-copilot/.github/workflows/main.yml
-name: YourAI Copilot CI/CD
+name: YourAI Copilot CI/CD (Node.js 12.x)
 
 on:
   push:
-    branches: [ "main", "develop" ] # Triggers on pushes to main and develop
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main", "develop" ] # Triggers on PRs to main and develop
+    branches: [ "main", "develop" ]
 
 jobs:
   lint-and-test:
-    name: Lint and Unit Test
+    name: Lint and Unit Test (Node.js 12.x)
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x] # Test on multiple Node.js versions
+        node-version: ['12.x'] # Target Node.js 12.x series
 
     steps:
     - name: Checkout repository
@@ -24,108 +24,101 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm' # Cache npm dependencies
+        # npm version should typically align with Node 12.x (npm 6.x)
+        # cache: 'npm' # Caching npm for Node 12 might be less critical or behave differently with older npm
 
-    - name: Install dependencies
-      run: npm ci # Use ci for cleaner installs, assumes package-lock.json
+    - name: Install dependencies (npm 6.x expected with Node 12)
+      run: npm ci
 
-    - name: Run ESLint # Assumes ESLint is configured
-      run: npm run lint --if-present # Fails job if linting errors
+    - name: Run ESLint (v7.x)
+      run: npm run lint --if-present
 
-    - name: Run Prettier Check # Assumes Prettier is configured
-      run: npm run format:check --if-present # Fails job if formatting issues
+    - name: Run Prettier Check (v2.x)
+      run: npm run format:check --if-present
 
-    - name: Run unit tests (Jest)
-      run: npm test -- --coverage --ci # Runs Jest tests, generates coverage, CI mode
-      # The 'npm test' script in package.json should point to 'jest'
-      # Add '--ci' flag for Jest for optimized CI runs if available/needed
+    - name: Run unit tests (Jest v26.x)
+      run: npm test -- --ci # Jest v26 should understand --ci; --coverage is in package.json script
 
+    # Codecov upload for Jest v26 coverage (ensure coverage reporters are compatible)
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4 # Action to upload coverage to Codecov
+      uses: codecov/codecov-action@v4
       with:
-        token: ${{ secrets.CODECOV_TOKEN }} # Optional: if using Codecov and private repo
-        # files: ./coverage/clover.xml,./coverage/coverage-final.json # Specify coverage files if needed
-        # directory: ./coverage/ # Or directory
-      # This step is optional and depends on whether you use Codecov or similar.
+        token: ${{ secrets.CODECOV_TOKEN }} # Optional
+        # files: ./coverage/clover.xml,./coverage/lcov.info # Adjust if Jest 26 output differs
+        # directory: ./coverage/
+      # Potentially use an older version of codecov-action if v4 has issues with Node 12 execution environment for the action itself.
+      # However, the action primarily uploads files, so current version might be fine.
 
-  # E2E tests can be more resource-intensive and complex to set up in CI,
-  # especially for browser extensions.
-  # This job is a placeholder and might require specific setup for Playwright with extensions.
+  # E2E tests with Playwright v1.17.2 on Node 12.x.
+  # This job is kept for structure but its utility is limited due to old Playwright/browser versions.
   e2e-tests:
-    name: End-to-End Tests (Playwright)
+    name: End-to-End Tests (Playwright v1.17.x, Node.js 12.x)
     runs-on: ubuntu-latest
-    needs: lint-and-test # Run after lint and unit tests pass
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Optional: Run E2E only on push to main
+    needs: lint-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Keep conditional for now
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
+    - name: Set up Node.js 12.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.x # Use a specific Node version for Playwright
-        cache: 'npm'
+        node-version: '12.x'
+        # cache: 'npm'
 
     - name: Install dependencies
       run: npm ci
 
-    # Playwright needs browsers. Install them.
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps # Installs browsers and OS dependencies
+    # Playwright v1.17.x needs its specific browsers.
+    - name: Install Playwright v1.17.x Browsers
+      run: npx playwright@1.17.2 install --with-deps # Specify version for npx to be sure
 
-    # TODO: Build the extension first if E2E tests need to load it
-    # This step depends on your build process (e.g., webpack, parcel, or just zipping)
+    # Build step placeholder (if needed for E2E)
     # - name: Build extension for E2E testing
-    #   run: npm run build # Assuming you have a build script
+    #   run: npm run build
 
-    - name: Run Playwright E2E tests
-      run: npm run test:e2e # Assumes 'test:e2e' script in package.json runs 'npx playwright test'
-      # You might need to pass the extension path to Playwright via environment variables
-      # or have Playwright config handle it, especially for loading the unpacked extension.
+    - name: Run Playwright E2E tests (v1.17.x)
+      run: npm run test:e2e
+      # Expect potential instability or limited test scope.
 
     - name: Upload Playwright report
       uses: actions/upload-artifact@v4
-      if: always() # Upload report even if tests fail
+      if: always()
       with:
-        name: playwright-report
-        path: playwright-report/ # Default Playwright HTML report path
+        name: playwright-report-node12
+        path: playwright-report/
         retention-days: 30
 
   build-extension:
-    name: Build Extension ZIP
+    name: Build Extension ZIP (Node.js 12.x for scripts)
     runs-on: ubuntu-latest
-    needs: [lint-and-test] # Depends on successful linting and unit tests
-    # Optionally add 'e2e-tests' to needs if E2E should also pass before building release artifact
+    needs: [lint-and-test] # Base on unit tests; E2E is too risky to gate build on.
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
+    - name: Set up Node.js 12.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.x
-        cache: 'npm'
+        node-version: '12.x'
+        # cache: 'npm'
 
-    - name: Install dependencies
+    - name: Install dependencies (if build script needs them)
       run: npm ci
 
-    # This assumes you have a build script in package.json that prepares files for zipping
-    # e.g., copies necessary files (manifest.json, js, css, html, assets) to a 'dist' folder.
-    # If no complex build step, this might just be zipping the source files directly.
-    - name: Build extension (if necessary, e.g., webpack, rollup)
-      run: npm run build --if-present # Example: creates a 'dist' folder
+    - name: Build extension (using Node 12 for build script if any)
+      run: npm run build --if-present
 
     - name: Create ZIP file
-      # This zips the content of 'dist/' or specific project files.
-      # If you don't have a 'dist' folder from a build step, adjust the path.
-      # Example: zip -r your-ai-copilot.zip ./ -x ".git/*" ".github/*" "node_modules/*" "tests/*" ...
       run: |
-        if [ -d "dist" ]; then
-          cd dist && zip -r ../your-ai-copilot.zip .
+        VERSION=$(node -p "require('./package.json').version")
+        ZIP_NAME="your-ai-copilot-${VERSION}.zip"
+        if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
+          cd dist && zip -r "../${ZIP_NAME}" .
         else
-          # Zip essential files if no dedicated build output directory
+          echo "dist/ directory is empty or does not exist. Zipping source files."
           mkdir temp_dist
           cp manifest.json temp_dist/
           cp -r js temp_dist/
@@ -133,40 +126,38 @@ jobs:
           cp -r html temp_dist/
           cp -r assets temp_dist/
           # Add other necessary files/folders
-          cd temp_dist && zip -r ../your-ai-copilot.zip . && cd .. && rm -rf temp_dist
+          cd temp_dist && zip -r "../${ZIP_NAME}" . && cd .. && rm -rf temp_dist
         fi
-        echo "EXTENSION_NAME=your-ai-copilot.zip" >> $GITHUB_ENV
+        echo "EXTENSION_NAME=${ZIP_NAME}" >> $GITHUB_ENV
 
     - name: Upload ZIP artifact
       uses: actions/upload-artifact@v4
       with:
-        name: extension-zip
+        name: extension-zip-node12
         path: ${{ env.EXTENSION_NAME }}
-        retention-days: 90 # How long to keep the artifact
+        retention-days: 90
 
-  # Placeholder for deployment job
-  # Actual deployment requires secrets for Chrome Web Store API access
-  # and use of a tool like 'webstore-upload'
+  # Deployment job (placeholder, no changes other than Node version for tool install if needed)
   deploy-to-chrome-web-store:
-    name: Deploy to Chrome Web Store
+    name: Deploy to Chrome Web Store (Node.js 12.x for tools)
     runs-on: ubuntu-latest
-    needs: build-extension # Depends on successful build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Deploy only on push to main
+    needs: build-extension
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
     - name: Download extension ZIP
       uses: actions/download-artifact@v4
       with:
-        name: extension-zip
-        path: . # Download to current directory
+        name: extension-zip-node12 # Match updated artifact name
+        path: .
 
-    - name: Set up Node.js
+    - name: Set up Node.js 12.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.x
+        node-version: '12.x'
 
-    - name: Install webstore-upload CLI (example tool)
-      run: npm install -g webstore-upload # Or use npx
+    - name: Install webstore-upload CLI (ensure compatible version if possible)
+      run: npm install -g webstore-upload # This might install latest, check for Node 12 compatible version if issues.
 
     - name: Deploy to Chrome Web Store
       env:
@@ -176,11 +167,9 @@ jobs:
         REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
       run: |
         echo "Starting deployment process..."
-        # The actual command depends on the 'webstore-upload' tool's API
-        # Example: webstore-upload --source your-ai-copilot.zip --extension-id $EXTENSION_ID \
-        #                         --client-id $CLIENT_ID --client-secret $CLIENT_SECRET \
-        #                         --refresh-token $REFRESH_TOKEN --auto-publish
-        echo "Deployment placeholder: Real deployment requires Chrome Web Store API credentials and tool setup."
-        echo "If this were a real deployment, your-ai-copilot.zip would be uploaded."
-        # For now, just list the file to simulate
-        ls -l your-ai-copilot.zip
+        # Use the downloaded ZIP name from previous step
+        ZIP_FILE_NAME=$(ls your-ai-copilot-*.zip | head -n 1)
+        echo "Attempting to deploy ${ZIP_FILE_NAME}"
+        # webstore-upload --source "${ZIP_FILE_NAME}" --extension-id $EXTENSION_ID ... (example)
+        echo "Deployment placeholder: Real deployment requires CWS API credentials and tool setup."
+        ls -l "${ZIP_FILE_NAME}"

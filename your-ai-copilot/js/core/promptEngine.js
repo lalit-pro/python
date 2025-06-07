@@ -1,6 +1,6 @@
 // your-ai-copilot/js/core/promptEngine.js
 
-import { callLLMProvider } from './llmUtils.js';
+const { callLLMProvider } = require('./llmUtils.js');
 
 /**
  * @file promptEngine.js
@@ -26,7 +26,7 @@ import { callLLMProvider } from './llmUtils.js';
  * @returns {Promise<string>} A promise that resolves to the LLM's response to the filled prompt.
  * @throws {Error} If template processing or LLM call fails.
  */
-export async function processPromptTemplate(templateString, contextData = {}, options = {}) {
+async function processPromptTemplate(templateString, contextData = {}, options = {}) {
     if (!templateString || typeof templateString !== 'string' || !templateString.trim()) {
         throw new Error("Prompt template string cannot be empty.");
     }
@@ -81,7 +81,7 @@ export async function processPromptTemplate(templateString, contextData = {}, op
  * @returns {Promise<object>} A promise that resolves to an object with contextData.
  *                           { pageText, selectedText, youtubeTranscript, pageUrl }
  */
-export async function getPromptContext() {
+async function getPromptContext() {
     let contextData = {
         pageText: '',
         selectedText: '',
@@ -157,3 +157,8 @@ Is there any mention of 'AI' in the selected text: {{selection}}?";
 // }
 //
 // // testPromptEngine(); // Call from a context where chrome APIs are available.
+
+module.exports = {
+    processPromptTemplate,
+    getPromptContext,
+};

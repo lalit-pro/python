@@ -1,42 +1,64 @@
 {
   "env": {
     "browser": true,
-    "es2021": true,
+    "es2021": true, // Still useful for global ES2021 features in browser/modern contexts
     "jest": true,
-    "node": true // For config files, test scripts, etc.
+    "node": true
   },
   "extends": [
     "eslint:recommended",
-    "airbnb-base" // Using Airbnb as a base style guide
+    "airbnb-base" // Uses eslint-plugin-import
   ],
   "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
+    "ecmaVersion": 2021 // Explicitly set for clarity with ESLint v7
+                           // Default for ESLint is 'script' unless 'sourceType: module' is in code with ES6 import/export
   },
   "plugins": [
-    "import" // For airbnb-base
+    "import"
   ],
   "globals": {
-    "chrome": "readonly" // Define chrome as a global for extension APIs
+    "chrome": "readonly"
   },
   "rules": {
-    "no-console": "warn", // Warn about console.log in production, allow during dev
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }], // Warn about unused vars, allow unused args starting with _
-    "import/extensions": ["warn", "ignorePackages", { // Allow omitting .js in imports for JS files
-      "js": "never"
-    }],
-    "class-methods-use-this": "off", // Allow class methods that don't use 'this'
-    "no-restricted-globals": ["error", "name", "event"], // Disallow using 'name' and 'event' as globals
-    "no-param-reassign": ["warn", { "props": false }], // Allow reassigning properties of parameters
-    "consistent-return": "off", // Allow functions to sometimes return and sometimes not (e.g. callbacks)
+    "no-console": "warn",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    // For CommonJS, 'import/extensions' might behave differently or be less relevant.
+    // Airbnb-base v14 + ESLint 7 should handle CommonJS 'require' correctly.
+    // We can remove this rule or adjust if it causes issues with 'require'.
+    // For now, let's comment it out to avoid potential conflicts with CommonJS `require` behavior.
+    // "import/extensions": ["warn", "ignorePackages", {
+    //   "js": "never"
+    // }],
+    "class-methods-use-this": "off",
+    "no-restricted-globals": ["error", "name", "event"],
+    "no-param-reassign": ["warn", { "props": false }],
+    "consistent-return": "off",
     "max-len": ["warn", { "code": 120, "ignoreUrls": true, "ignoreStrings": true, "ignoreTemplateLiterals": true }]
   },
+  "overrides": [
+    {
+      "files": ["*.test.js", "*.spec.js", "tests/**/*.js"], // Test files
+      "env": {
+        "jest": true
+      }
+    },
+    {
+      "files": ["js/**/*.js"], // Browser extension scripts
+      "parserOptions": {
+        // "sourceType": "module" // Assume browser scripts can be modules if they use import/export
+                               // (though we converted core to CommonJS, UI scripts might differ or be simple scripts)
+                               // Given the full conversion, this might not be needed.
+                               // Let's assume all JS is now CommonJS or simple scripts not using import/export.
+      }
+    }
+  ],
   "ignorePatterns": [
     "node_modules/",
     "dist/",
     "coverage/",
     "playwright-report/",
     "tests/accessibility/reports/",
-    "*.config.js" // Ignore config files like jest.config.js, playwright.config.js from top-level linting
+    "*.config.js",
+    "babel.config.js" // Also ignore babel.config.js
   ]
 }

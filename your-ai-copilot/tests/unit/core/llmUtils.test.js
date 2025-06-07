@@ -11,7 +11,7 @@
 // Adjust the path based on your actual file structure and Jest config (moduleNameMapper)
 // This path assumes jest.config.js maps '../js/core/' correctly or that relative paths work.
 // Let's try a relative path from the test file's location.
-import { constructLLMRequestBody, parseLLMResponse, callLLMProvider } from '../../../js/core/llmUtils.js';
+const { constructLLMRequestBody, parseLLMResponse, callLLMProvider } = require('../../../js/core/llmUtils.js');
 
 describe('llmUtils', () => {
   // Reset mocks before each test if they are modified within tests
@@ -28,10 +28,10 @@ describe('llmUtils', () => {
           gemini: { candidates: [{ content: { parts: [{ text: "Gemini mock response" }] } }] },
         };
         const data = responsePayload[message.data.provider] || { text: "Unknown provider mock response" };
-        if (callback) callback({ success: true, data: data });
-        return Promise.resolve({ success: true, data: data });
+        if (callback) callback({ success: true, data }); // Simplified
+        return Promise.resolve({ success: true, data });
       }
-      if (callback) callback({ success: false, error: 'Unhandled mock action' });
+      if (callback) callback({ success: false, error: 'Unhandled mock action' }); // Simplified
       return Promise.resolve({ success: false, error: 'Unhandled mock action' });
     });
   });

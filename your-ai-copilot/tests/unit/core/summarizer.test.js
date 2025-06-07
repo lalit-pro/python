@@ -1,12 +1,12 @@
 // your-ai-copilot/tests/unit/core/summarizer.test.js
 
-import { summarizeText } from '../../../js/core/summarizer.js';
+const { summarizeText } = require('../../../js/core/summarizer.js');
 // Mock llmUtils.js since summarizeText depends on callLLMProvider from it
 jest.mock('../../../js/core/llmUtils.js', () => ({
   callLLMProvider: jest.fn(),
 }));
 // llmUtils.js is now mocked. We can control its behavior for each test.
-import { callLLMProvider } from '../../../js/core/llmUtils.js'; // Import the mocked function
+const { callLLMProvider } = require('../../../js/core/llmUtils.js'); // Import the mocked function
 
 describe('summarizer.js', () => {
   beforeEach(() => {
@@ -146,8 +146,10 @@ describe('summarizer.js', () => {
 describe('summarizer.js - summarizeUrl (conceptual)', () => {
     it('summarizeUrl should throw an error as it is not implemented', async () => {
         // Import it specifically for this test if it's not already.
-        const { summarizeUrl } = require('../../../js/core/summarizer.js');
-        await expect(summarizeUrl('http://example.com', {}))
+        // summarizeUrl is already part of the destructured require at the top if needed,
+        // but to be explicit for this conceptual test:
+        const summarizerModule = require('../../../js/core/summarizer.js');
+        await expect(summarizerModule.summarizeUrl('http://example.com', {}))
             .rejects
             .toThrow("summarizeUrl requires page content fetching capability, which is not implemented in this standalone module example. Use summarizeText with fetched content.");
     });

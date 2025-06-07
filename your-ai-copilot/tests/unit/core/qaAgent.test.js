@@ -1,11 +1,11 @@
 // your-ai-copilot/tests/unit/core/qaAgent.test.js
 
-import { askQuestion } from '../../../js/core/qaAgent.js';
+const { askQuestion } = require('../../../js/core/qaAgent.js');
 // Mock llmUtils.js
 jest.mock('../../../js/core/llmUtils.js', () => ({
   callLLMProvider: jest.fn(),
 }));
-import { callLLMProvider } from '../../../js/core/llmUtils.js'; // Import the mocked function
+const { callLLMProvider } = require('../../../js/core/llmUtils.js'); // Import the mocked function
 
 describe('qaAgent.js', () => {
   beforeEach(() => {

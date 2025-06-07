@@ -29,7 +29,7 @@ const ALL_MONITORS_KEY = 'allPageMonitors';     // Key for storing the list of a
  * @param {string} [monitorConfig.webhookUrl] - URL for webhook notification if type is 'webhook'.
  * @returns {Promise<void>}
  */
-export async function addOrUpdateMonitor(monitorConfig) {
+async function addOrUpdateMonitor(monitorConfig) {
     if (!monitorConfig.id || !monitorConfig.url || !monitorConfig.selector) {
         throw new Error("Monitor ID, URL, and CSS selector are required.");
     }
@@ -75,7 +75,7 @@ export async function addOrUpdateMonitor(monitorConfig) {
  * @param {string} monitorId The ID of the monitor.
  * @returns {Promise<object|null>} The monitor configuration or null if not found.
  */
-export async function getMonitor(monitorId) {
+async function getMonitor(monitorId) {
     const monitorKey = `${MONITOR_STORAGE_PREFIX}${monitorId}`;
     const result = await chrome.storage.local.get(monitorKey);
     return result[monitorKey] || null;
@@ -85,7 +85,7 @@ export async function getMonitor(monitorId) {
  * Retrieves all monitor configurations.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of monitor objects.
  */
-export async function getAllMonitors() {
+async function getAllMonitors() {
     const allMonitorsResult = await chrome.storage.local.get(ALL_MONITORS_KEY);
     const monitorIds = allMonitorsResult[ALL_MONITORS_KEY] || [];
     if (monitorIds.length === 0) return [];
@@ -101,7 +101,7 @@ export async function getAllMonitors() {
  * @param {string} monitorId The ID of the monitor to delete.
  * @returns {Promise<void>}
  */
-export async function deleteMonitor(monitorId) {
+async function deleteMonitor(monitorId) {
     const monitorKey = `${MONITOR_STORAGE_PREFIX}${monitorId}`;
     try {
         // Remove the individual monitor
@@ -132,7 +132,7 @@ export async function deleteMonitor(monitorId) {
  * @param {string} monitorId The ID of the monitor to check.
  * @returns {Promise<void>}
  */
-export async function checkMonitorForChanges(monitorId) {
+async function checkMonitorForChanges(monitorId) {
     const monitor = await getMonitor(monitorId);
     if (!monitor) {
         console.warn(`Monitor ${monitorId} not found for checking. It might have been deleted.`);
@@ -299,3 +299,13 @@ async function handleFetchPageElementForMonitor(data, sendResponse) {
 //     // Extract monitor ID and URL, then open the page
 //   }
 // });
+
+module.exports = {
+    addOrUpdateMonitor,
+    getMonitor,
+    getAllMonitors,
+    deleteMonitor,
+    checkMonitorForChanges,
+    MONITOR_STORAGE_PREFIX, // Export if needed by background for alarm name checking
+    ALL_MONITORS_KEY      // Export if needed
+};

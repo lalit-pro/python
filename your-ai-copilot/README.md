@@ -23,9 +23,10 @@ Follow these steps to get YourAI Copilot running locally for development or pers
 
 ### Prerequisites
 
-*   [Node.js](https://nodejs.org/) (v18.x or later recommended)
-*   [npm](https://www.npmjs.com/) (usually comes with Node.js)
-*   A modern web browser that supports Web Extensions (e.g., Google Chrome, Microsoft Edge)
+*   **Node.js**: Version `~12.22.12` (This specific version is targeted for compatibility with older development environments like Windows 7).
+*   **npm**: Version `~6.14.16` (Typically comes with Node.js v12.22.12).
+    *   You can use a Node Version Manager (like [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows)) to install and manage specific Node.js versions if your system currently has a different version.
+*   A modern web browser that supports Web Extensions (e.g., Google Chrome, Microsoft Edge).
 
 ### Installation
 
@@ -36,9 +37,11 @@ Follow these steps to get YourAI Copilot running locally for development or pers
     ```
 
 2.  **Install dependencies:**
+    (Ensure your Node.js and npm versions match the prerequisites above before running this.)
     ```bash
     npm install
     ```
+    This will install the project's development dependencies, which have been chosen for compatibility with Node.js v12.
 
 3.  **API Keys:**
     This extension requires API keys for the Large Language Models (LLMs) it uses.
@@ -51,15 +54,16 @@ Follow these steps to get YourAI Copilot running locally for development or pers
 
 ## Building the Extension (for development)
 
-Currently, this project does not have a complex build step (like Webpack or Rollup) configured in its initial scaffolding for basic functionality. The JavaScript, HTML, and CSS files are used directly.
+The project uses CommonJS for its Node.js-executed scripts (like tests). The browser-facing code (content scripts, UI scripts) is written as standard JavaScript.
+Currently, this project does not have a complex transpilation or bundling step for the *extension source code itself* (e.g., using Webpack or Rollup). The `npm run build` script primarily copies necessary files to a `dist/` directory for packaging.
 
-If a build step (e.g., for bundling, minification, or using Svelte/React/Vue components) were added, you would typically run:
+If a more complex build process were added (e.g., for UI frameworks, SASS/LESS compilation), the `npm run build` command would handle that.
 
+To prepare files for loading or packaging:
 ```bash
 npm run build
 ```
-
-This command would (if configured in `package.json`) compile source files into a `dist/` directory, which you would then load as the unpacked extension. For now, you can load the root directory of the project.
+This command will ensure all necessary files are copied to the `dist/` folder.
 
 ## Loading the Unpacked Extension
 
@@ -68,7 +72,7 @@ This command would (if configured in `package.json`) compile source files into a
 1.  Open Chrome and navigate to `chrome://extensions`.
 2.  Enable "Developer mode" using the toggle switch in the top-right corner.
 3.  Click the "Load unpacked" button.
-4.  Select the root directory of the `your-ai-copilot` project (or the `dist` folder if a build step is implemented).
+4.  Select the `dist` directory within your `your-ai-copilot` project folder (created by `npm run build`).
 5.  The YourAI Copilot extension icon should appear in your browser toolbar.
 
 ### Microsoft Edge
@@ -76,7 +80,7 @@ This command would (if configured in `package.json`) compile source files into a
 1.  Open Edge and navigate to `edge://extensions`.
 2.  Enable "Developer mode" using the toggle switch in the bottom-left corner.
 3.  Click the "Load unpacked" button.
-4.  Select the root directory of the `your-ai-copilot` project (or the `dist` folder).
+4.  Select the `dist` directory.
 5.  The YourAI Copilot extension icon should appear in your browser toolbar.
 
 ## Usage Walkthrough
@@ -106,9 +110,15 @@ This command would (if configured in `package.json`) compile source files into a
 
 ## Development
 
+The project's development tooling has been configured for compatibility with Node.js v12.22.12.
+
+### Module System
+*   Node.js-executed scripts (e.g., unit tests, utility scripts run via Node) use the **CommonJS** module system (`require`/`module.exports`).
+*   Browser-executed extension scripts (`js/*` directories, `offscreen.js`) use standard browser script loading or ES module syntax if supported directly by the browser version targeted by the extension.
+
 ### Linting and Formatting
 
-ESLint and Prettier (assumed to be configured) help maintain code quality and consistency.
+ESLint (v7.x) and Prettier (v2.x) are used for code quality and consistency.
 
 *   Check for linting errors:
     ```bash
@@ -118,55 +128,59 @@ ESLint and Prettier (assumed to be configured) help maintain code quality and co
     ```bash
     npm run format:check
     ```
-*   Fix formatting issues:
+*   Fix formatting issues (Prettier):
     ```bash
     npm run format:fix
+    ```
+*   Fix some linting issues (ESLint):
+    ```bash
+    npm run lint:fix
     ```
 
 ### Testing
 
-*   **Unit Tests (Jest)**:
+*   **Unit Tests (Jest v26.x)**:
     ```bash
     npm test
     ```
-    This will run Jest tests located in `tests/unit/`. Coverage reports may also be generated.
+    This will run Jest tests located in `tests/unit/`. Jest is configured to use Babel (`babel-jest`) to transpile JavaScript, ensuring compatibility with Node.js v12 for test execution.
 
-*   **End-to-End Tests (Playwright)**: (Requires Playwright setup and browser drivers)
+*   **End-to-End Tests (Playwright v1.17.x)**:
     ```bash
     npm run test:e2e
     ```
-    This runs Playwright tests from `tests/e2e/`. E2E testing for extensions can be complex and may require specific browser launch configurations to load the extension.
+    This runs Playwright tests from `tests/e2e/`.
+    **Note on E2E Testing**: Due to the requirement of Node.js v12 compatibility, a significantly older version of Playwright (v1.17.x) is used. This version bundles very old browser binaries (from late 2021). Consequently, E2E tests against modern websites (like YouTube) or complex Manifest V3 extension features may be unreliable or not fully representative. The E2E test suite is maintained for structural purposes and basic UI checks where feasible.
 
-*   **Accessibility Audits (Lighthouse)**:
+*   **Accessibility Audits (Lighthouse v8.x via Puppeteer v10.x)**:
     ```bash
     npm run audit:accessibility
     ```
-    This script (in `tests/accessibility/audit.js`) runs Lighthouse audits on the extension's HTML components (popup, options, sidebar) and generates reports.
+    This script (in `tests/accessibility/audit.js`) runs Lighthouse audits on the extension's HTML components. These versions are compatible with Node.js v12 and provide valuable baseline accessibility feedback.
 
 ## Roadmap (v1.1+)
 
 This is a foundational scaffold. Future enhancements could include:
 
 *   **Internationalization (i18n)**: Support for multiple languages in the UI.
-*   **Additional LLM Providers**: Integration with more LLM services (e.g., local LLMs via Ollama, Cohere, etc.).
+*   **Additional LLM Providers**: Integration with more LLM services.
 *   **Advanced Page Monitoring**: More sophisticated change detection, webhook customization.
 *   **Streaming LLM Responses**: For a more interactive chat experience.
 *   **UI/UX Polish**: Enhancements to the visual design and user experience.
 *   **More Robust Error Handling**: Granular error reporting and recovery.
-*   **Comprehensive Build System**: Integration of Webpack/Rollup/Parcel for optimized builds, especially if using UI frameworks like React, Vue, or Svelte.
+*   **Modernization of Dev Stack**: If Node.js version constraints are lifted, upgrade development dependencies for improved features, security, and performance.
 *   **Detailed Documentation**: In-depth documentation for developers and users.
-*   **Community Prompts**: A way to share and discover useful custom prompts.
 
 ## Contributing
 
 Contributions are welcome! If you'd like to contribute, please:
 
 1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix (`git checkout -b feature/my-new-feature` or `bugfix/issue-number`).
+2.  Create a new branch for your feature or bug fix.
 3.  Make your changes.
-4.  Ensure your code lints and tests pass.
-5.  Commit your changes (`git commit -am 'Add some feature'`).
-6.  Push to the branch (`git push origin feature/my-new-feature`).
+4.  Ensure your code lints and tests pass in a Node.js v12.22.12 environment.
+5.  Commit your changes.
+6.  Push to the branch.
 7.  Create a new Pull Request.
 
 Please ensure your PR provides a clear description of the changes and why they are needed.

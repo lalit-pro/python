@@ -1,18 +1,26 @@
 // your-ai-copilot/tests/jest.config.js
 module.exports = {
   verbose: true,
-  testEnvironment: 'jest-environment-jsdom', // Or 'node' if not testing DOM-related things directly
-  // setupFilesAfterEnv: ['./jest.setup.js'], // If you need global setup like mocks
-  moduleNameMapper: {
-    // If you're using ES6 modules and need to map them for Jest
-    '^../js/core/(.*)$': '<rootDir>/../js/core/$1', // Adjust path as necessary
+  testEnvironment: 'jsdom', // jest-environment-jsdom v26 often uses jsdom v16.
+                                                // Or just 'jsdom' if the default for Jest 26 works.
+                                                // 'jest-environment-jsdom-sixteen' is illustrative if specific version needed.
+                                                // Standard 'jsdom' should be fine for Jest v26.
+  setupFilesAfterEnv: ['./unit/jest.setup.js'], // Path to global setup file.
+
+  // If your CommonJS code still uses modern JavaScript syntax not supported by Node 12
+  // (which Jest v26 would run under if your system Node is v12),
+  // you'll need Babel to transpile it.
+  transform: {
+    '^.+\\.js$': 'babel-jest',
   },
-  // Jest by default doesn't support ES6 modules directly in .js files without experimental flags or babel
-  // transform: { '^.+\.js$': 'babel-jest', }, // If you set up Babel
-  // For simplicity, if core modules are simple JS or tests mock chrome.*, this might be okay.
-  // Otherwise, you might need Babel or ensure modules are CJS compatible for testing.
-  // For now, let's assume core modules are written in a way Jest can handle or mocks are sufficient.
-  // This configuration might need adjustment based on the exact JS module format and Babel setup.
-  // If using ES modules directly in Node (experimental for Jest), specific Jest config is needed.
-  // For this project, we'll assume manual mocking of chrome APIs.
+
+  // No need for moduleNameMapper for ES6 module resolution as we are using CommonJS.
+  // Other configurations can be added as needed.
+  // For Jest v26, coverage reporters and other options are generally similar to newer versions.
+  collectCoverage: true,
+  coverageDirectory: "coverage",
+  coverageReporters: ["json", "lcov", "text", "clover"],
+  // testMatch: [ // Default is usually fine: finds *.test.js or *.spec.js in __tests__ or tests folders
+  //   "**/tests/unit/**/*.test.js"
+  // ],
 };
