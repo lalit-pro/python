@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourAI Copilot - Settings</title>
+    <link rel="stylesheet" href="../css/options.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>YourAI Copilot Settings</h1>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="apiKeys">API Keys</button>
+            <button class="tab-button" data-tab="features">Features</button>
+            <button class="tab-button" data-tab="permissions">Permissions</button>
+            <button class="tab-button" data-tab="dataManagement">Data Management</button>
+            <button class="tab-button" data-tab="about">About</button>
+        </nav>
+
+        <main id="options-content">
+            <!-- API Keys Tab -->
+            <section id="apiKeys-tab-content" class="tab-pane active">
+                <h2>API Keys</h2>
+                <p>Enter your API keys for the Large Language Model (LLM) providers you wish to use. Your keys are stored locally and securely.</p>
+                <div class="form-group">
+                    <label for="defaultProvider">Default LLM Provider:</label>
+                    <select id="defaultProvider">
+                        <option value="openai">OpenAI (GPT)</option>
+                        <option value="anthropic">Anthropic (Claude)</option>
+                        <option value="gemini">Google (Gemini)</option>
+                    </select>
+                </div>
+                <div class="api-key-input">
+                    <label for="openaiApiKey">OpenAI API Key:</label>
+                    <input type="password" id="openaiApiKey" placeholder="sk-...">
+                    <button class="toggle-visibility" data-target="openaiApiKey">Show</button>
+                </div>
+                <div class="api-key-input">
+                    <label for="anthropicApiKey">Anthropic API Key:</label>
+                    <input type="password" id="anthropicApiKey" placeholder="sk-ant-...">
+                    <button class="toggle-visibility" data-target="anthropicApiKey">Show</button>
+                </div>
+                <div class="api-key-input">
+                    <label for="geminiApiKey">Google Gemini API Key:</label>
+                    <input type="password" id="geminiApiKey" placeholder="AIzaSy...">
+                    <button class="toggle-visibility" data-target="geminiApiKey">Show</button>
+                </div>
+                <button id="saveApiKeysBtn" class="save-btn">Save API Keys</button>
+                <div id="apiKeyStatus" class="status-message"></div>
+            </section>
+
+            <!-- Features Tab -->
+            <section id="features-tab-content" class="tab-pane">
+                <h2>Feature Management</h2>
+                <p>Enable or disable specific features of the extension.</p>
+                <div class="feature-toggle">
+                    <label for="summarizationToggle">Summarization:</label>
+                    <input type="checkbox" id="summarizationToggle" class="feature-checkbox" data-feature="summarization">
+                </div>
+                <div class="feature-toggle">
+                    <label for="qaToggle">Q&A with Page/Text:</label>
+                    <input type="checkbox" id="qaToggle" class="feature-checkbox" data-feature="qa">
+                </div>
+                <div class="feature-toggle">
+                    <label for="flashcardsToggle">Flashcard Generation:</label>
+                    <input type="checkbox" id="flashcardsToggle" class="feature-checkbox" data-feature="flashcards">
+                </div>
+                <div class="feature-toggle">
+                    <label for="keywordsToggle">Keyword Extraction:</label>
+                    <input type="checkbox" id="keywordsToggle" class="feature-checkbox" data-feature="keywords">
+                </div>
+                <div class="feature-toggle">
+                    <label for="translationToggle">Translation:</label>
+                    <input type="checkbox" id="translationToggle" class="feature-checkbox" data-feature="translation">
+                </div>
+                <div class="feature-toggle">
+                    <label for="pageMonitorsToggle">Page Monitors (Price/Stock/Content):</label>
+                    <input type="checkbox" id="pageMonitorsToggle" class="feature-checkbox" data-feature="pageMonitors">
+                </div>
+                 <div class="feature-toggle">
+                    <label for="sidebarToggle">Enable Sidebar:</label>
+                    <input type="checkbox" id="sidebarToggle" class="feature-checkbox" data-feature="sidebar">
+                </div>
+                <button id="saveFeaturesBtn" class="save-btn">Save Feature Settings</button>
+                <div id="featureStatus" class="status-message"></div>
+            </section>
+
+            <!-- Permissions Tab -->
+            <section id="permissions-tab-content" class="tab-pane">
+                <h2>Host Permissions</h2>
+                <p>Manage permissions for specific websites. Some features may require access to all websites (`&lt;all_urls&gt;`).</p>
+                <div id="hostPermissionsList">
+                    </div>
+                <button id="requestAllUrlsBtn">Request `&lt;all_urls&gt;` Permission</button>
+                <p><small>Note: Granting broad host permissions allows the extension to interact with more sites but should be done with caution.</small></p>
+                <div id="permissionStatus" class="status-message"></div>
+            </section>
+
+            <!-- Data Management Tab -->
+            <section id="dataManagement-tab-content" class="tab-pane">
+                <h2>Data Management</h2>
+                <p>Manage your stored data, such as interaction history and cached items.</p>
+                <button id="exportAllDataBtn">Export All Extension Data</button>
+                <button id="clearAllDataBtn" class="danger-btn">Clear All Extension Data</button>
+                <p><small>Clearing all data will reset API keys, settings, and delete all history. This action cannot be undone.</small></p>
+                <div id="dataManagementStatus" class="status-message"></div>
+            </section>
+
+            <!-- About Tab -->
+            <section id="about-tab-content" class="tab-pane">
+                <h2>About YourAI Copilot</h2>
+                <p>Version: <span id="extensionVersion">1.0.0</span></p>
+                <p>YourAI Copilot is designed to enhance your browsing experience with powerful AI assistance.</p>
+                <p>For support, feedback, or contributions, please visit our <a href="#" id="projectRepoLink" target="_blank">project repository</a> (link to be added).</p>
+                <p>&copy; 2024 YourAI Copilot Team</p>
+            </section>
+        </main>
+    </div>
+    <script src="../js/options/options.js"></script>
+</body>
+</html>

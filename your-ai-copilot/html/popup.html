@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourAI Copilot</title>
+    <link rel="stylesheet" href="../css/popup.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>YourAI Copilot</h1>
+            <div class="settings-icon" id="settingsButton" title="Open Settings">⚙️</div>
+        </header>
+
+        <div class="actions">
+            <button id="summarizeBtn" class="action-btn">📄 Summarize Page</button>
+            <button id="qaBtn" class="action-btn">❓ Q&A with Page</button>
+            <button id="flashcardsBtn" class="action-btn">🃏 Generate Flashcards</button>
+            <button id="keywordsBtn" class="action-btn">🔑 Extract Keywords</button>
+            <button id="translateBtn" class="action-btn">🌐 Translate Page/Text</button>
+        </div>
+
+        <div class="quick-settings">
+            <div class="form-group">
+                <label for="languageSelect">Language:</label>
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="zh">中文</option>
+                    <option value="ar">العربية</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="pt">Português</option>
+                    {/* <!-- Add more languages as needed --> */}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="summaryMode">Summary Mode:</label>
+                <select id="summaryMode">
+                    <option value="bullets">Bullet Points</option>
+                    <option value="paragraph">Paragraph</option>
+                    <option value="short">Short (1-2 sentences)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="status-area" id="statusArea">
+            <p>Ready.</p>
+        </div>
+
+        <footer>
+            <button id="openSidebarBtn">💬 Open Sidebar</button>
+        </footer>
+    </div>
+    <script src="../js/popup/popup.js"></script></body>
+</html>
